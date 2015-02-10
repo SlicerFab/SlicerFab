@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 2.8.9)
+
+project(SlicerFab)
+
+#-----------------------------------------------------------------------------
+# Extension meta-information
+set(EXTENSION_HOMEPAGE "http://www.example.com/Slicer/Extensions/SlicerFab")
+set(EXTENSION_CATEGORY "Printing")
+set(EXTENSION_CONTRIBUTORS "Steve Pieper (Isomics, Inc.)")
+set(EXTENSION_DESCRIPTION "Tools for 3D object fabrication.")
+set(EXTENSION_ICONURL "http://www.example.com/Slicer/Extensions/SlicerFab.png")
+set(EXTENSION_SCREENSHOTURLS "http://www.example.com/Slicer/Extensions/SlicerFab/Screenshots/1.png")
+
+#-----------------------------------------------------------------------------
+# Extension dependencies
+find_package(Slicer REQUIRED)
+include(${Slicer_USE_FILE})
+
+#-----------------------------------------------------------------------------
+# Extension modules
+add_subdirectory(BitmapGenerator)
+## NEXT_MODULE
+
+#-----------------------------------------------------------------------------
+include(${Slicer_EXTENSION_CPACK})
