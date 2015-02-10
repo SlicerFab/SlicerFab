@@ -1,0 +1,7 @@
+[Build]
+Format version = 1;
+Layer thickness = 0.03;
+Number of slices = 11;
+[Materials]
+Material1 = D:/Dropbox/WYSS/5_bmp-software/09_FullWorkflow/output/Material1/Material1_xxxx.bmp
+Material2 = D:/Dropbox/WYSS/5_bmp-software/09_FullWorkflow/output/Material2/Material2_xxxx.bmp

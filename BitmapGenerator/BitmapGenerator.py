@@ -71,7 +71,7 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     logic = BitmapGeneratorLogic()
     volumeRenderingNode = slicer.util.getNode(pattern="VolumeRendering")
     logic = BitmapGeneratorLogic()
-    filePattern = '/tmp/slabs/slice-%04d.png'
+    filePattern = '/tmp/slabs/slice_%04d.png' # underscore not dash - will need 2 serial names for both materials
     logic.generate(volumeRenderingNode, filePattern)
     print("Generated to %s" % filePattern)
 
@@ -92,9 +92,9 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     self.width = 1024
     self.height = 1024
     self.buildDirection = "SI" # TODO: allow other build directions
-    self.slabSpacing = 0.016 # in mm, TODO: confirm this is good
+    self.slabSpacing = 0.03 # in mm, # DONE
     self.slabSpacing = 0.5
-    self.slabThickness = 1 # in mm, TODO: confirm this is good
+    self.slabThickness = 1 # in mm, TODO: confirm this is good - Not sure what this refers to
 
 
   def captureBitmap(self,threeDWidget,filePath):
@@ -107,7 +107,7 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     qimage.save(filePath)
 
 
-  def generate(self,volumeRenderingNode,filePattern="/tmp/slice-%04d.png"):
+  def generate(self,volumeRenderingNode,filePattern="/tmp/slice_%04d.png"): # underscore not dash 
     """
     
     """
