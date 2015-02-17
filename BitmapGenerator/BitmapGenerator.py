@@ -84,7 +84,7 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
   """
   Generates the bitmaps by slicing through the current volume rendering ROI
   and saving images.
-  
+
   Uses ScriptedLoadableModuleLogic base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
@@ -107,9 +107,9 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     qimage.save(filePath)
 
 
-  def generate(self,volumeRenderingNode,filePattern="/tmp/slice_%04d.png"): # underscore not dash 
+  def generate(self,volumeRenderingNode,filePattern="/tmp/slice_%04d.png"): # underscore not dash
     """
-    
+
     """
     lm = slicer.app.layoutManager()
     # switch on the type to get the requested window
@@ -202,7 +202,7 @@ class BitmapGeneratorTest(ScriptedLoadableModuleTest):
   def setUp(self):
     """ Do whatever is needed to reset the state - typically a scene clear will be enough.
     """
-    slicer.mrmlScene.Clear(0)
+    #slicer.mrmlScene.Clear(0)
 
   def runTest(self):
     """Run as few or as many tests as needed here.
@@ -210,7 +210,36 @@ class BitmapGeneratorTest(ScriptedLoadableModuleTest):
     self.setUp()
     self.test_BitmapGenerator1()
 
+  def savePNGs(self,node,pattern):
+    wlc = vtk.vtkImageMapToWindowLevelColors()
+    wlc.SetInputData(node.GetImageData())
+    if not node.GetLabelMap():
+      displayNode = node.GetDisplayNode()
+      wlc.SetWindow(displayNode.GetWindow())
+      wlc.SetLevel(displayNode.GetLevel())
+    wlc.Update()
+    print(wlc.GetOutput().GetScalarRange())
+    cast = vtk.vtkImageCast()
+    cast.SetInputConnection(wlc.GetOutputPort())
+    cast.SetOutputScalarTypeToUnsignedChar()
+    pngWriter = vtk.vtkPNGWriter()
+    pngWriter.SetFilePattern(pattern)
+    pngWriter.SetInputConnection(cast.GetOutputPort())
+    pngWriter.Write()
+    slicer.modules.BitmapGeneratorWidget.pngWriter = pngWriter
+
   def test_BitmapGenerator1(self):
+    mask = slicer.util.getNode('Patient*subv*label')
+    self.savePNGs(mask, "/tmp/masks/mask-%d.png")
+    self.delayDisplay("Wrote mask", 300)
+    masked = slicer.util.getNode('masked')
+    self.savePNGs(masked, "/tmp/masked/mask-%d.png")
+    self.delayDisplay("Wrote masked", 300)
+
+    self.delayDisplay("Finished")
+
+
+  def test_BitmapGeneratorScene(self):
     """ Ideally you should have several levels of tests.  At the lowest level
     tests sould exercise the functionality of the logic with different inputs
     (both valid and invalid).  At higher levels your tests should emulate the
