@@ -1,0 +1,320 @@
+Python 2.7.3 (default, Nov  2 2014, 17:15:01) 
+[GCC 4.2.1 Compatible Clang 3.1 ((tags/RELEASE_31/final))] on darwin
+>>> 
+>>> pdtis = vtk.vtkPolyDataToImageStencil()
+>>> m = getNode('jig*')
+>>> v = getNode('CT*')
+>>> pdtis.SetInputData(m.GetPolyData())
+>>> m.GetPolyData().GetBounds()
+(-180.0, 90.0, -90.0, 90.0, -177.0, -93.0)
+>>> pdtis.SetOutputWholeExtent(m.GetPolyData().GetBounds())
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+TypeError: SetOutputWholeExtent argument 1: integer argument expected, got float
+>>> pdtis.SetOutputWholeExtent(0, 600, 0, 600, 0, 600)
+>>> pdtis.SetOutputOrigin( -300, -300, -300)
+>>> pdtis.SetOutputSpacing(1,1,1)
+>>> pdtis.Update()
+>>> nw = slicer.vtkNRRDWriter()
+>>> nw.SetFileName("/tmp/stencil.nrrd")
+>>> nw.Write()
+0
+>>> nw.SetInputData(pdtis.GetOutput())
+>>> nw.Write()
+1
+>>> print(nw)
+vtkNRRDWriter (0x156146d80)
+  Debug: Off
+  Modified Time: 4018004
+  Reference Count: 2
+  Registered Events: (none)
+  Executive: 0x13fe6d420
+  ErrorCode: Undefined error: 0
+  Information: 0x141e63750
+  AbortExecute: Off
+  Progress: 0
+  Progress Text: (None)
+  RAS to IJK Matrix:   Debug: Off
+  Modified Time: 4016615
+  Reference Count: 1
+  Registered Events: (none)
+  Elements:
+    1 0 0 0 
+    0 1 0 0 
+    0 0 1 0 
+    0 0 0 1 
+  Measurement frame:   Debug: Off
+  Modified Time: 4016616
+  Reference Count: 1
+  Registered Events: (none)
+  Elements:
+    1 0 0 0 
+    0 1 0 0 
+    0 0 1 0 
+    0 0 0 1 
+
+
+>>> nw.GetFileName()
+'/tmp/stencil.nrrd'
+>>> nw.Write()
+1
+>>> 
+>>> vtk.vtkWriter()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+TypeError: this is an abstract class and cannot be instantiated
+>>> vtk.vtkBMPWriter()
+(vtkBMPWriter)0x13ca51ef0
+>>> bw = vtk.vtkBMPWriter()
+>>> bw.SetFilePattern('/tmp/bmps/image-%03d.bmp')
+>>> bw.SetInputConnection(pdtis.GetOutputPort())
+>>> bw.Write()
+>>> nw.SetInputConnection(pdtis.GetOutputPort())
+>>> nw.Update()
+>>> nw.Write()
+1
+>>> pdtis.GetOutput()
+(vtkImageStencilData)0x13ca51ef0
+>>> pdtis.GetOutput().GetScalarRange()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: GetScalarRange
+>>> print(pdtis.GetOutput())
+vtkImageStencilData (0x1425a98c0)
+  Debug: Off
+  Modified Time: 3957911
+  Reference Count: 2
+  Registered Events: (none)
+  Information: 0x1425a9970
+  Data Released: False
+  Global Release Data: Off
+  UpdateTime: 4016167
+  Field Data:
+    Debug: Off
+    Modified Time: 3951974
+    Reference Count: 1
+    Registered Events: (none)
+    Number Of Arrays: 0
+    Number Of Components: 0
+    Number Of Tuples: 0
+  Extent: (0, 600, 0, 600, 0, 600)
+  Spacing: (1, 1, 1)
+  Origin: (-300, -300, -300)
+
+
+>>> pdtis.GetOutputDataObject()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+TypeError: GetOutputDataObject() takes exactly 1 argument (0 given)
+>>> pdtis.GetOutputDataObject(0)
+(vtkImageStencilData)0x13ca51ef0
+>>> st = pdtis.GetOutputDataObject(0)
+>>> print(st)
+vtkImageStencilData (0x1425a98c0)
+  Debug: Off
+  Modified Time: 3957911
+  Reference Count: 2
+  Registered Events: (none)
+  Information: 0x1425a9970
+  Data Released: False
+  Global Release Data: Off
+  UpdateTime: 4016167
+  Field Data:
+    Debug: Off
+    Modified Time: 3951974
+    Reference Count: 1
+    Registered Events: (none)
+    Number Of Arrays: 0
+    Number Of Components: 0
+    Number Of Tuples: 0
+  Extent: (0, 600, 0, 600, 0, 600)
+  Spacing: (1, 1, 1)
+  Origin: (-300, -300, -300)
+
+
+>>> ti = vtk.vtkImageStencilToImage()
+>>> ti.SetInputConnection(pdtis.GetOutputDataObject(0))
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+TypeError: SetInputConnection argument 1: method requires a vtkAlgorithmOutput, a vtkImageStencilData was provided.
+>>> ti.SetInputData(pdtis.GetOutputDataObject(0))
+>>> ti.GetOutputDataObject()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+TypeError: GetOutputDataObject() takes exactly 1 argument (0 given)
+>>> ti.GetOutputDataObject(0)
+(vtkImageData)0x13c9cead0
+>>> i = ti.GetOutputDataObject(0)
+>>> print(i)
+vtkImageData (0x141d4ac70)
+  Debug: Off
+  Modified Time: 4032089
+  Reference Count: 2
+  Registered Events: (none)
+  Information: 0x1243f7260
+  Data Released: False
+  Global Release Data: Off
+  UpdateTime: 0
+  Field Data:
+    Debug: Off
+    Modified Time: 4032086
+    Reference Count: 1
+    Registered Events: (none)
+    Number Of Arrays: 0
+    Number Of Components: 0
+    Number Of Tuples: 0
+  Number Of Points: 0
+  Number Of Cells: 0
+  Cell Data:
+    Debug: Off
+    Modified Time: 4032089
+    Reference Count: 1
+    Registered Events: (none)
+    Number Of Arrays: 0
+    Number Of Components: 0
+    Number Of Tuples: 0
+    Copy Tuple Flags: ( 1 1 1 1 1 0 1 1 )
+    Interpolate Flags: ( 1 1 1 1 1 0 0 1 )
+    Pass Through Flags: ( 1 1 1 1 1 1 1 1 )
+    Scalars: (none)
+    Vectors: (none)
+    Normals: (none)
+    TCoords: (none)
+    Tensors: (none)
+    GlobalIds: (none)
+    PedigreeIds: (none)
+    EdgeFlag: (none)
+  Point Data:
+    Debug: Off
+    Modified Time: 4032088
+    Reference Count: 1
+    Registered Events: (none)
+    Number Of Arrays: 0
+    Number Of Components: 0
+    Number Of Tuples: 0
+    Copy Tuple Flags: ( 1 1 1 1 1 0 1 1 )
+    Interpolate Flags: ( 1 1 1 1 1 0 0 1 )
+    Pass Through Flags: ( 1 1 1 1 1 1 1 1 )
+    Scalars: (none)
+    Vectors: (none)
+    Normals: (none)
+    TCoords: (none)
+    Tensors: (none)
+    GlobalIds: (none)
+    PedigreeIds: (none)
+    EdgeFlag: (none)
+  Bounds: 
+    Xmin,Xmax: (1, -1)
+    Ymin,Ymax: (1, -1)
+    Zmin,Zmax: (1, -1)
+  Compute Time: 4032292
+  Spacing: (1, 1, 1)
+  Origin: (0, 0, 0)
+  Dimensions: (0, 0, 0)
+  Increments: (0, 0, 0)
+  Extent: (0, -1, 0, -1, 0, -1)
+
+
+>>> ti.Update()
+>>> i = ti.GetOutputDataObject(0)
+>>> print(i)
+vtkImageData (0x141d4ac70)
+  Debug: Off
+  Modified Time: 4032591
+  Reference Count: 2
+  Registered Events: (none)
+  Information: 0x1243f7260
+  Data Released: False
+  Global Release Data: Off
+  UpdateTime: 4032592
+  Field Data:
+    Debug: Off
+    Modified Time: 4032559
+    Reference Count: 1
+    Registered Events: (none)
+    Number Of Arrays: 0
+    Number Of Components: 0
+    Number Of Tuples: 0
+  Number Of Points: 217081801
+  Number Of Cells: 216000000
+  Cell Data:
+    Debug: Off
+    Modified Time: 4032567
+    Reference Count: 1
+    Registered Events: (none)
+    Number Of Arrays: 0
+    Number Of Components: 0
+    Number Of Tuples: 0
+    Copy Tuple Flags: ( 1 1 1 1 1 0 1 1 )
+    Interpolate Flags: ( 1 1 1 1 1 0 0 1 )
+    Pass Through Flags: ( 1 1 1 1 1 1 1 1 )
+    Scalars: (none)
+    Vectors: (none)
+    Normals: (none)
+    TCoords: (none)
+    Tensors: (none)
+    GlobalIds: (none)
+    PedigreeIds: (none)
+    EdgeFlag: (none)
+  Point Data:
+    Debug: Off
+    Modified Time: 4032591
+    Reference Count: 1
+    Registered Events: (none)
+    Number Of Arrays: 1
+    Array 0 name = ImageScalars
+    Number Of Components: 1
+    Number Of Tuples: 217081801
+    Copy Tuple Flags: ( 1 1 1 1 1 0 1 1 )
+    Interpolate Flags: ( 1 1 1 1 1 0 0 1 )
+    Pass Through Flags: ( 1 1 1 1 1 1 1 1 )
+    Scalars: 
+      Debug: Off
+      Modified Time: 4032588
+      Reference Count: 1
+      Registered Events: (none)
+      Name: ImageScalars
+      Data type: unsigned char
+      Size: 217081801
+      MaxId: 217081800
+      NumberOfComponents: 1
+      Information: 0
+      Name: ImageScalars
+      Number Of Components: 1
+      Number Of Tuples: 217081801
+      Size: 217081801
+      MaxId: 217081800
+      LookupTable: (none)
+      Array: 0x16ded2000
+    Vectors: (none)
+    Normals: (none)
+    TCoords: (none)
+    Tensors: (none)
+    GlobalIds: (none)
+    PedigreeIds: (none)
+    EdgeFlag: (none)
+  Bounds: 
+    Xmin,Xmax: (6.95322e-310, 7.11353e-310)
+    Ymin,Ymax: (2.81211e-314, 2.81211e-314)
+    Zmin,Zmax: (6.95322e-310, 4.17889e-307)
+  Compute Time: 4032704
+  Spacing: (2.67183e-314, 4.94066e-324, 6.95322e-310)
+  Origin: (6.95322e-310, 2.81211e-314, 6.95322e-310)
+  Dimensions: (601, 601, 601)
+  Increments: (0, 0, 0)
+  Extent: (0, 600, 0, 600, 0, 600)
+
+
+>>> i.GetScalarSize()
+1
+>>> i.GetPointData().GetScalars()
+(vtkUnsignedCharArray)0x13c9ceb90
+>>> i.GetPointData().GetScalars().GetScalarRange()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: GetScalarRange
+>>> i.GetPointData().GetScalars().GetRange()
+(0.0, 1.0)
+>>> nw.SetInputData(i)
+>>> nw.Write()
+1
