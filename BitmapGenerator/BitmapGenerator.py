@@ -49,6 +49,12 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     # Layout within the dummy collapsible button
     parametersFormLayout = qt.QFormLayout(parametersCollapsibleButton)
 
+    #
+    # Path
+    #
+    self.dirPath = ctk.ctkPathLineEdit()
+    self.dirPath.currentPath = "/tmp"
+    parametersFormLayout.addRow(self.dirPath)
 
     #
     # Apply Button
@@ -71,7 +77,7 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     logic = BitmapGeneratorLogic()
     volumeRenderingNode = slicer.util.getNode(pattern="VolumeRendering")
     logic = BitmapGeneratorLogic()
-    filePattern = '/tmp/slabs/slice_%04d.png' # underscore not dash - will need 2 serial names for both materials
+    filePattern = self.dirPath.currentPath + '/slice_%04d.png' # underscore not dash - will need 2 serial names for both materials
     logic.generate(volumeRenderingNode, filePattern)
     print("Generated to %s" % filePattern)
 
