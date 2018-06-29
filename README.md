@@ -10,6 +10,9 @@ Usage:
 5. Set the output path (/tmp by default, for windows change to c:/TEMP or something)
 6. Click Apply and let the slices get generated.
 
+More info:[paper](https://www.liebertpub.com/doi/pdf/10.1089/3dp.2017.0140), [discussion](https://discourse.slicer.org/t/printing-volume-renderings-in-plastic/3017)
+
+
 # Process
 
 Turns this:
