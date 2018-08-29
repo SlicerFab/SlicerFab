@@ -141,18 +141,19 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     viewNode.SetBackgroundColor2((1,1,1))
 
 
+    volumeRenderingNode.SetCroppingEnabled(True)
     roi = volumeRenderingNode.GetROINode()
     roiCenter = [0,]*3
     roiRadius = [0,]*3
     roi.GetXYZ(roiCenter)
     roi.GetRadiusXYZ(roiRadius)
-    roi.SetDisplayVisibility(0)
+    roi.SetDisplayVisibility(False)
     camera = vtk.vtkCamera()
     camera.SetFocalPoint(roiCenter)
     camera.SetPosition(roiCenter[0], roiCenter[1], roiCenter[2] + roiRadius[2])
     camera.SetViewUp((0, 1, 0))
 
-    mrmlCamera = slicer.util.getNode('Default Scene Camera')
+    mrmlCamera = slicer.util.getNode('Camera')
     cacheCamera = vtk.vtkCamera()
     cacheCamera.DeepCopy(mrmlCamera.GetCamera())
 
@@ -184,13 +185,14 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
       writer.Write()
       slabCounter += 1
       slabCenter[2] = slabCenter[2] + self.slabSpacing
+      self.delayDisplay("Saved to " + filePath, 30)
 
     # reset things
     viewNode.Copy(cacheViewNode)
     mrmlCamera.GetCamera().DeepCopy(cacheCamera)
     roi.SetXYZ(roiCenter)
     roi.SetRadiusXYZ(roiRadius)
-    roi.SetDisplayVisibility(1)
+    roi.SetDisplayVisibility(True)
 
 
     # for debugging convenience

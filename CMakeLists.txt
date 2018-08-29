@@ -4,12 +4,12 @@ project(SlicerFab)
 
 #-----------------------------------------------------------------------------
 # Extension meta-information
-set(EXTENSION_HOMEPAGE "http://www.example.com/Slicer/Extensions/SlicerFab")
+set(EXTENSION_HOMEPAGE "http://github.com/SlicerFab/SlicerFab")
 set(EXTENSION_CATEGORY "Printing")
-set(EXTENSION_CONTRIBUTORS "Steve Pieper (Isomics, Inc.)")
+set(EXTENSION_CONTRIBUTORS "Steve Pieper (Isomics, Inc.), Ahmed Hosney (Harvard Wyss), James Weaver (Harvard Wyss), Steve Keating (MIT Media Lab)")
 set(EXTENSION_DESCRIPTION "Tools for 3D object fabrication.")
-set(EXTENSION_ICONURL "http://www.example.com/Slicer/Extensions/SlicerFab.png")
-set(EXTENSION_SCREENSHOTURLS "http://www.example.com/Slicer/Extensions/SlicerFab/Screenshots/1.png")
+set(EXTENSION_ICONURL "https://cdn.rawgit.com/SlicerFab/SlicerFab/0f141879/slices.png")
+set(EXTENSION_SCREENSHOTURLS "https://cdn.rawgit.com/SlicerFab/SlicerFab/0f141879/rendering.png")
 
 #-----------------------------------------------------------------------------
 # Extension dependencies
