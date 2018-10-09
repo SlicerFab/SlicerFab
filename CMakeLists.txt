@@ -8,8 +8,8 @@ set(EXTENSION_HOMEPAGE "http://github.com/SlicerFab/SlicerFab")
 set(EXTENSION_CATEGORY "Printing")
 set(EXTENSION_CONTRIBUTORS "Steve Pieper (Isomics, Inc.), Ahmed Hosney (Harvard Wyss), James Weaver (Harvard Wyss), Steve Keating (MIT Media Lab)")
 set(EXTENSION_DESCRIPTION "Tools for 3D object fabrication.")
-set(EXTENSION_ICONURL "https://cdn.rawgit.com/SlicerFab/SlicerFab/0f141879/slices.png")
-set(EXTENSION_SCREENSHOTURLS "https://cdn.rawgit.com/SlicerFab/SlicerFab/0f141879/rendering.png")
+set(EXTENSION_ICONURL "https://github.com/SlicerFab/SlicerFab/raw/master/slices.png")
+set(EXTENSION_SCREENSHOTURLS "https://github.com/SlicerFab/SlicerFab/raw/master/rendering.png")
 
 #-----------------------------------------------------------------------------
 # Extension dependencies
