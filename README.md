@@ -9,6 +9,16 @@ More info:
 - [Article in Science Daily](https://www.sciencedaily.com/releases/2018/05/180530113214.htm)
 - [Discussion](https://discourse.slicer.org/t/printing-volume-renderings-in-plastic/3017)
 
+# Caveats
+
+*Please note:*
+- this process is only compatible with a limited range of newer printers and not traditional filament-based printers.  See the paper for more detail about the printers for which ths approach has been used.
+- the developers of SlicerFab are affiliated with any printer company so we don't know the details about what printers may or may not support SlicerFab now or in the future.
+- some of the steps in this printing process require custom python coding to convert the generated bitmaps into files compatible with particular printers.
+- we hope to provide more details on workflows that are known to generate prints as we gain experience with compatible printers.
+
+This is meant to be a community effort - if you have experience with this kind of printers please share!
+
 # Process
 
 Turns this:
