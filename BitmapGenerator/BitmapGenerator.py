@@ -94,13 +94,24 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
   Uses ScriptedLoadableModuleLogic base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
+
   def __init__(self):
+    
+    # Size of each generated layer image in pixels
     self.width = 1024
     self.height = 1024
-    self.buildDirection = "SI" # TODO: allow other build directions
-    self.slabSpacing = 0.03 # in mm, # DONE
-    self.slabSpacing = 0.5
-    self.slabThickness = 1 # in mm, TODO: confirm this is good - Not sure what this refers to
+
+    # Orientation of reslicing plane.
+    # TODO: allow other build directions.
+    self.buildDirection = "SI" 
+
+    # Slab spacing: must match the printer's layer thickness.
+    self.slabSpacing = 0.027 # in mm
+
+    # Slab thickness defines the thickness of the rendered slab for each layer.
+    # Thicker slab will result in smoother, less noisy image, but some details may be blurred.
+    # TODO: confirm this value is good.
+    self.slabThickness = 1.0 # in mm
 
 
   def captureBitmap(self,threeDWidget,filePath):
