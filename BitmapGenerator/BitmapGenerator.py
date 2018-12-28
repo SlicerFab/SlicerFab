@@ -44,14 +44,34 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     # Instantiate and connect widgets ...
 
     #
-    # Parameters Area
+    # Printer parameters Area
     #
-    parametersCollapsibleButton = ctk.ctkCollapsibleButton()
-    parametersCollapsibleButton.text = "Parameters"
-    self.layout.addWidget(parametersCollapsibleButton)
+    printerParametersCollapsibleButton = ctk.ctkCollapsibleButton()
+    printerParametersCollapsibleButton.text = "Printer parameters"
+    self.layout.addWidget(printerParametersCollapsibleButton)
 
     # Layout within the dummy collapsible button
-    parametersFormLayout = qt.QFormLayout(parametersCollapsibleButton)
+    printerParametersFormLayout = qt.QFormLayout(printerParametersCollapsibleButton)
+
+    self.xResolutionDpiSpinBox = ctk.ctkDoubleSpinBox()
+    self.xResolutionDpiSpinBox.setToolTip("Resolution of exported images along X axis.")
+    self.xResolutionDpiSpinBox.decimals = 0
+    self.xResolutionDpiSpinBox.minimum = 60
+    self.xResolutionDpiSpinBox.maximum = 2400
+    self.xResolutionDpiSpinBox.suffix = "DPI"
+    self.xResolutionDpiSpinBox.value = self.logic.xResolutionDpi
+    self.xResolutionDpiSpinBox.singleStep = 100
+    printerParametersFormLayout.addRow("X resolution: ", self.xResolutionDpiSpinBox)
+
+    self.yResolutionDpiSpinBox = ctk.ctkDoubleSpinBox()
+    self.yResolutionDpiSpinBox.setToolTip("Resolution of exported images along Y axis.")
+    self.yResolutionDpiSpinBox.decimals = 0
+    self.yResolutionDpiSpinBox.minimum = 60
+    self.yResolutionDpiSpinBox.maximum = 2400
+    self.yResolutionDpiSpinBox.suffix = "DPI"
+    self.yResolutionDpiSpinBox.value = self.logic.yResolutionDpi
+    self.yResolutionDpiSpinBox.singleStep = 100
+    printerParametersFormLayout.addRow("Y resolution: ", self.yResolutionDpiSpinBox)
 
     self.layerThicknessMmSpinBox = ctk.ctkDoubleSpinBox()
     self.layerThicknessMmSpinBox.setToolTip("Distance between extracted image slices.")
@@ -59,16 +79,38 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     self.layerThicknessMmSpinBox.minimum = 0.0001
     self.layerThicknessMmSpinBox.maximum = 50.0
     self.layerThicknessMmSpinBox.suffix = "mm"
-    self.layerThicknessMmSpinBox.value = self.logic.slabSpacing
+    self.layerThicknessMmSpinBox.value = self.logic.slabSpacingMm
     self.layerThicknessMmSpinBox.singleStep = 0.1
-    parametersFormLayout.addRow("Layer thickness: ", self.layerThicknessMmSpinBox)
+    printerParametersFormLayout.addRow("Layer thickness: ", self.layerThicknessMmSpinBox)
+
+    #
+    # Output parameters Area
+    #
+    outputParametersCollapsibleButton = ctk.ctkCollapsibleButton()
+    outputParametersCollapsibleButton.text = "Output parameters"
+    self.layout.addWidget(outputParametersCollapsibleButton)
+
+    # Layout within the dummy collapsible button
+    outputParametersFormLayout = qt.QFormLayout(outputParametersCollapsibleButton)
+
+    self.printScaleSpinBox = ctk.ctkDoubleSpinBox()
+    self.printScaleSpinBox.setToolTip("Scale of print size relative to real life size. 1.0 means printing in real life size, <1.0 means printed objects are smaller than in real life.")
+    self.printScaleSpinBox.decimals = 3
+    self.printScaleSpinBox.minimum = 0.01
+    self.printScaleSpinBox.maximum = 100.0
+    self.printScaleSpinBox.suffix = "x"
+    self.printScaleSpinBox.value = self.logic.printScale
+    self.printScaleSpinBox.singleStep = 0.1
+    outputParametersFormLayout.addRow("Scale: ", self.printScaleSpinBox)
 
     #
     # Path
     #
     self.dirPath = ctk.ctkPathLineEdit()
-    self.dirPath.currentPath = "/tmp"
-    parametersFormLayout.addRow("Output folder: ", self.dirPath)
+    self.dirPath.filters = ctk.ctkPathLineEdit.Dirs
+    self.dirPath.settingKey = 'BitmapGeneratorOutputFolder'
+    #self.dirPath.currentPath = "/tmp"
+    outputParametersFormLayout.addRow("Output folder: ", self.dirPath)
 
     #
     # Apply Button
@@ -77,7 +119,7 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     self.applyButtonLabelCancel = "Cancel" 
     self.applyButton = qt.QPushButton(self.applyButtonLabelGenerate)
     self.applyButton.toolTip = "Start/cancel bitmap generation"
-    parametersFormLayout.addRow(self.applyButton)
+    outputParametersFormLayout.addRow(self.applyButton)
 
     # connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
@@ -86,8 +128,7 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     self.layout.addStretch(1)
 
   def cleanup(self):
-    pass
-
+    self.logic.cleanup()
 
   def onApplyButton(self):
     # Disable apply button to prevent multiple clicks
@@ -101,8 +142,15 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     self.applyButton.text = self.applyButtonLabelCancel
     self.applyButton.setEnabled(True)
 
+    self.dirPath.addCurrentPathToHistory()
+
     try:
-      self.logic.slabSpacing = self.layerThicknessMmSpinBox.value
+      # This can be a long operation - indicate it to the user
+      qt.QApplication.setOverrideCursor(qt.Qt.WaitCursor) 
+      self.logic.slabSpacingMm = self.layerThicknessMmSpinBox.value
+      self.logic.printScale = self.printScaleSpinBox.value
+      self.logic.xResolutionDpi = self.xResolutionDpiSpinBox.value
+      self.logic.yResolutionDpi = self.yResolutionDpiSpinBox.value
       volumeRenderingNode = slicer.mrmlScene.GetFirstNodeByClass("vtkMRMLVolumeRenderingDisplayNode")
       filePattern = self.dirPath.currentPath + '/slice_%04d.png' # underscore not dash - will need 2 serial names for both materials
       self.logic.generate(volumeRenderingNode, filePattern)
@@ -111,6 +159,9 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
       logging.error("Error: {0}".format(e.message))
       import traceback
       traceback.print_exc()
+    finally:
+      qt.QApplication.restoreOverrideCursor()
+
     self.applyButton.text = self.applyButtonLabelGenerate
     self.applyButton.setEnabled(True) 
 
@@ -134,7 +185,16 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     self.height = 1024
 
     # Slab spacing: must match the printer's layer thickness.
-    self.slabSpacing = 0.027 # in mm
+    self.slabSpacingMm = 0.027 # in mm
+
+    # Resolution within the slab.
+    self.xResolutionDpi = 600
+    self.yResolutionDpi = 300
+
+    # Scale of print size relative to real life size.
+    # Value of 1.0 means printing in real life size.
+    # Value less than 1.0 means printed objects are smaller than in real life.
+    self.printScale = 1.0
 
     # Slab thickness defines the thickness of the rendered slab for each layer.
     # Thicker slab will result in more opaque image and less noisy image, but some details may be blurred.
@@ -151,11 +211,16 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     self.cancelRequested = False
 
   def __del__(self):
+    self.cleanup()
+
+  def cleanup(self):
     if self.threeDWidget:
-      self.threeDWidget.setMRMLthreeDViewNode(None)
+      self.threeDWidget.setMRMLViewNode(None)
       self.threeDWidget.deleteLater()
     if self.threeDViewNode:
       slicer.mrmlScene.RemoveNode(self.threeDViewNode)
+    self.threeDWidget = None
+    self.threeDViewNode = None
 
   def requestCancel(self):
     logging.info("User requested cancelling of capture")
@@ -167,7 +232,9 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     """
 
     viewLayoutName = "BitmapGenerator"
-    viewLayoutLabel = "BG"
+    # layout label is usually shorter than the full layout name, but in this case it helps if it is
+    # obvious that the widget belongs to this module
+    viewLayoutLabel = "BitmapGenerator"
 
     # Retrieve or create MRML view node
     if not self.threeDViewNode:
@@ -186,7 +253,9 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     # Create widget
     if not self.threeDWidget:
       self.threeDWidget = slicer.qMRMLThreeDWidget()
-      self.threeDWidget.setObjectName("ThreeDWidget"+viewLayoutLabel)
+      self.threeDWidget.setObjectName("ThreeDWidget"+self.threeDViewNode.GetLayoutLabel())
+      self.threeDWidget.viewLabel = self.threeDViewNode.GetLayoutLabel()
+      self.threeDWidget.viewColor = qt.QColor.fromRgbF(*self.threeDViewNode.GetLayoutColor())
       self.threeDWidget.setMRMLScene(slicer.mrmlScene)
       self.threeDWidget.setMRMLViewNode(self.threeDViewNode)
 
@@ -198,6 +267,10 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     self.create3dView(volumeRenderingNode)
     self.threeDViewNode.SetAndObserveParentLayoutNodeID(volumeRenderingNode.GetID())
     self.threeDWidget.setMRMLViewNode(self.threeDViewNode)
+
+    # Make sure the selected volume rendering node is visible in the capture view
+    if not volumeRenderingNode.IsDisplayableInView(self.threeDViewNode.GetID()):
+      volumeRenderingNode.AddViewNodeID(self.threeDViewNode.GetID())
 
     # Configure view and widget
     self.threeDViewNode.SetBoxVisible(0)
@@ -231,8 +304,10 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     cameraNode.SetViewUp((0, 1, 0))
     cameraNode.GetCamera().SetClippingRange(cameraPositionOffset/2.0, roiRadius[2] * 2 + cameraPositionOffset * 2.0)
 
-    roiMargin = 0.05 # add a few percent margin around the ROI
-    heightOfViewportInMm = max(roiRadius[0], roiRadius[1]) * (1.0 + roiMargin)
+    windowSizeInPixels = self.threeDWidget.threeDView().renderWindow().GetSize()
+
+    pixelSizeInMm =  25.4 / self.yResolutionDpi
+    heightOfViewportInMm = windowSizeInPixels[1] * pixelSizeInMm / self.printScale
     cameraNode.SetParallelScale(heightOfViewportInMm)
 
     # cycle through the slabs
@@ -242,11 +317,18 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     slabCounter = 0
     slabCenter = [roiCenter[0], roiCenter[1], roiCenter[2] - roiRadius[2]]
     slabTop = roiCenter[2] + roiRadius[2]
-    numberOfSlabs = int(roiRadius[2] * 2.0 / self.slabSpacing) + 1
+    scaledSlabSpacingMm = self.slabSpacingMm / self.printScale
+    numberOfSlabs = int(roiRadius[2] * 2.0 / scaledSlabSpacingMm) + 1
 
     threeDView = self.threeDWidget.threeDView()
     renderWindow = threeDView.renderWindow()
     renderer = renderWindow.GetRenderers().GetFirstRenderer()
+
+    originalCameraUserTransform = cameraNode.GetCamera().GetUserTransform()
+    originalPixelAspect = renderer.GetPixelAspect()
+    cameraUserTransform = vtk.vtkTransform()
+    cameraUserTransform.Scale(self.xResolutionDpi/self.yResolutionDpi,1.0,1.0)
+    cameraNode.GetCamera().SetUserTransform(cameraUserTransform)
 
     if self.transparentBackground:
       originalAlphaBitPlanes = renderWindow.GetAlphaBitPlanes()
@@ -269,14 +351,23 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
         renderWindow.Render()
 
       windowToImage.SetInput(renderWindow)
-      writer = vtk.vtkPNGWriter()
-      writer.SetInputConnection(windowToImage.GetOutputPort())
-      filePath = filePattern % slabCounter
+
+      # Write to file with custom DPI
+      # (use Qt file writer to allow saving DPI values)
+      filename = "c:/tmp/test.png"
       windowToImage.Update()
-      writer.SetFileName(filePath)
-      writer.Write()
+      vtkImage = windowToImage.GetOutput()
+      qImage = qt.QImage()
+      slicer.qMRMLUtils().vtkImageDataToQImage(vtkImage, qImage)
+      inchesPerMeter = 1000/25.4
+      qImage.setDotsPerMeterX(self.xResolutionDpi*inchesPerMeter)
+      qImage.setDotsPerMeterY(self.yResolutionDpi*inchesPerMeter)
+      imagePixmap = qt.QPixmap.fromImage(qImage)
+      filePath = filePattern % slabCounter
+      imagePixmap.save(filePath)
+
       slabCounter += 1
-      slabCenter[2] = slabCenter[2] + self.slabSpacing
+      slabCenter[2] = slabCenter[2] + scaledSlabSpacingMm
       logging.info("Slab {0}/{1} saved to {2}".format(slabCounter, numberOfSlabs, filePath))
 
     self.threeDWidget.hide()
@@ -286,11 +377,18 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
     roi.SetRadiusXYZ(roiRadius)
     roi.SetDisplayVisibility(originalRoiVisibility)
 
+    cameraNode.GetCamera().SetUserTransform(originalCameraUserTransform)
+
     if self.transparentBackground:
       renderWindow.SetAlphaBitPlanes(originalAlphaBitPlanes)
       renderer.SetGradientBackground(originalGradientBackground)
 
     volumeRenderingNode.GetVolumePropertyNode().GetVolumeProperty().SetShade(originalShade)
+
+    # for debugging convenience
+    slicer.modules.BitmapGeneratorWidget.threeDWidget = self.threeDWidget
+    slicer.modules.BitmapGeneratorWidget.threeDViewNode = self.threeDViewNode
+    slicer.modules.BitmapGeneratorWidget.volumeRenderingNode = volumeRenderingNode
 
     if self.cancelRequested:
       raise ValueError('User requested cancel.')
