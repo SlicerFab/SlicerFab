@@ -18,7 +18,7 @@ class BitmapGenerator(ScriptedLoadableModule):
     self.parent.title = "Bitmap Generator"
     self.parent.categories = ["SlicerFab"]
     self.parent.dependencies = []
-    self.parent.contributors = ["Steve Pieper (Isomics, Inc.), Steve Keating (MIT), Ahmed Hosny (Harvard), James Weaver (Harvard)", Andras Lasso (Queens)] # replace with "Firstname Lastname (Organization)"
+    self.parent.contributors = ["Steve Pieper (Isomics, Inc.)", "Steve Keating (MIT)", "Ahmed Hosny (Harvard)", "James Weaver (Harvard)", "Andras Lasso (Queens)"]
     self.parent.helpText = """
     Generate bitmap images for 3D printers that use images instead of surface models.
     """
