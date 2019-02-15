@@ -19,7 +19,7 @@ include(${Slicer_USE_FILE})
 #-----------------------------------------------------------------------------
 # Extension modules
 add_subdirectory(BitmapGenerator)
-add_subdirectory(Constructor)
+#add_subdirectory(Constructor)
 ## NEXT_MODULE
 
 #-----------------------------------------------------------------------------
