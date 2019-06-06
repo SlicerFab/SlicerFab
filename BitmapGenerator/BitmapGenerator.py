@@ -3,6 +3,7 @@ import unittest
 from __main__ import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import logging
+from six.moves.urllib.request import urlretrieve
 
 #
 # BitmapGenerator
@@ -116,7 +117,7 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
     # Apply Button
     #
     self.applyButtonLabelGenerate = "Generate bitmaps"
-    self.applyButtonLabelCancel = "Cancel" 
+    self.applyButtonLabelCancel = "Cancel"
     self.applyButton = qt.QPushButton(self.applyButtonLabelGenerate)
     self.applyButton.toolTip = "Start/cancel bitmap generation"
     outputParametersFormLayout.addRow(self.applyButton)
@@ -137,7 +138,7 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
 
     if self.applyButton.text == self.applyButtonLabelCancel:
       self.logic.requestCancel()
-      return 
+      return
 
     self.applyButton.text = self.applyButtonLabelCancel
     self.applyButton.setEnabled(True)
@@ -146,7 +147,7 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
 
     try:
       # This can be a long operation - indicate it to the user
-      qt.QApplication.setOverrideCursor(qt.Qt.WaitCursor) 
+      qt.QApplication.setOverrideCursor(qt.Qt.WaitCursor)
       self.logic.slabSpacingMm = self.layerThicknessMmSpinBox.value
       self.logic.printScale = self.printScaleSpinBox.value
       self.logic.xResolutionDpi = self.xResolutionDpiSpinBox.value
@@ -163,7 +164,7 @@ class BitmapGeneratorWidget(ScriptedLoadableModuleWidget):
       qt.QApplication.restoreOverrideCursor()
 
     self.applyButton.text = self.applyButtonLabelGenerate
-    self.applyButton.setEnabled(True) 
+    self.applyButton.setEnabled(True)
 
 #
 # BitmapGeneratorLogic
@@ -179,7 +180,7 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
   """
 
   def __init__(self):
-    
+
     # Size of each generated layer image in pixels
     self.width = 1024
     self.height = 1024
@@ -224,7 +225,7 @@ class BitmapGeneratorLogic(ScriptedLoadableModuleLogic):
 
   def requestCancel(self):
     logging.info("User requested cancelling of capture")
-    self.cancelRequested = True 
+    self.cancelRequested = True
 
   def create3dView(self, viewOwnerNode):
     """
@@ -457,7 +458,6 @@ class BitmapGeneratorTest(ScriptedLoadableModuleTest):
     #
     # first, get some data
     #
-    import urllib
     downloads = (
         ('http://joe.bwh.harvard.edu/slicer/2015-02-09-fab-Scene.mrb', '2015-02-09-fab-Scene.mrb', slicer.util.loadScene),
         )
@@ -466,7 +466,7 @@ class BitmapGeneratorTest(ScriptedLoadableModuleTest):
       filePath = slicer.app.temporaryPath + '/' + name
       if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
         print('Requesting download %s from %s...\n' % (name, url))
-        urllib.urlretrieve(url, filePath)
+        urlretrieve(url, filePath)
       if loader:
         print('Loading %s...\n' % (name,))
         loader(filePath)
