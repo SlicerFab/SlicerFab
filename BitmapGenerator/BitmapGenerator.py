@@ -411,6 +411,7 @@ class BitmapGeneratorTest(ScriptedLoadableModuleTest):
     """Run as few or as many tests as needed here.
     """
     self.setUp()
+    self.test_BitmapGeneratorScene()
     self.test_BitmapGenerator1()
 
   def savePNGs(self,node,pattern):
