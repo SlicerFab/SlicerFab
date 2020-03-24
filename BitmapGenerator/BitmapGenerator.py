@@ -405,43 +405,13 @@ class BitmapGeneratorTest(ScriptedLoadableModuleTest):
   def setUp(self):
     """ Do whatever is needed to reset the state - typically a scene clear will be enough.
     """
-    #slicer.mrmlScene.Clear(0)
+    slicer.mrmlScene.Clear(0)
 
   def runTest(self):
     """Run as few or as many tests as needed here.
     """
     self.setUp()
     self.test_BitmapGeneratorScene()
-    self.test_BitmapGenerator1()
-
-  def savePNGs(self,node,pattern):
-    wlc = vtk.vtkImageMapToWindowLevelColors()
-    wlc.SetInputData(node.GetImageData())
-    if not node.GetLabelMap():
-      displayNode = node.GetDisplayNode()
-      wlc.SetWindow(displayNode.GetWindow())
-      wlc.SetLevel(displayNode.GetLevel())
-    wlc.Update()
-    print(wlc.GetOutput().GetScalarRange())
-    cast = vtk.vtkImageCast()
-    cast.SetInputConnection(wlc.GetOutputPort())
-    cast.SetOutputScalarTypeToUnsignedChar()
-    pngWriter = vtk.vtkPNGWriter()
-    pngWriter.SetFilePattern(pattern)
-    pngWriter.SetInputConnection(cast.GetOutputPort())
-    pngWriter.Write()
-    slicer.modules.BitmapGeneratorWidget.pngWriter = pngWriter
-
-  def test_BitmapGenerator1(self):
-    mask = slicer.util.getNode('Patient*subv*label')
-    self.savePNGs(mask, "/tmp/masks/mask-%d.png")
-    self.delayDisplay("Wrote mask", 300)
-    masked = slicer.util.getNode('masked')
-    self.savePNGs(masked, "/tmp/masked/mask-%d.png")
-    self.delayDisplay("Wrote masked", 300)
-
-    self.delayDisplay("Finished")
-
 
   def test_BitmapGeneratorScene(self):
     """ Ideally you should have several levels of tests.  At the lowest level
@@ -459,22 +429,24 @@ class BitmapGeneratorTest(ScriptedLoadableModuleTest):
     #
     # first, get some data
     #
-    downloads = (
-        ('http://joe.bwh.harvard.edu/slicer/2015-02-09-fab-Scene.mrb', '2015-02-09-fab-Scene.mrb', slicer.util.loadScene),
-        )
+    import SampleData
+    volumeNode = SampleData.downloadSample('MRHead')
 
-    for url,name,loader in downloads:
-      filePath = slicer.app.temporaryPath + '/' + name
-      if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
-        print('Requesting download %s from %s...\n' % (name, url))
-        urlretrieve(url, filePath)
-      if loader:
-        print('Loading %s...\n' % (name,))
-        loader(filePath)
     self.delayDisplay('Finished with download and loading\n')
+
+    volRenLogic = slicer.modules.volumerendering.logic()
+    displayNode = volRenLogic.CreateDefaultVolumeRenderingNodes(volumeNode)
+    displayNode.SetVisibility(True)
+    scalarRange = volumeNode.GetImageData().GetScalarRange()
+    displayNode.GetVolumePropertyNode().Copy(volRenLogic.GetPresetByName('MR-Default'))
 
     volumeRenderingNode = slicer.util.getNode(pattern="VolumeRendering")
     logic = BitmapGeneratorLogic()
+    logic.slabSpacingMm = 10
+    logic.printScale = 1
+    logic.xResolutionDpi = 300
+    logic.yResolutionDpi = 300
+
     filePattern = slicer.app.temporaryPath + '/slice-%04d.png'
     logic.generate(volumeRenderingNode, filePattern)
     self.delayDisplay('Saved to ' + filePattern)
